@@ -1,0 +1,79 @@
+<div class='news-wrap'>
+	<div class='menu'>
+		<div onclick='formAddNews()' class='item add-news'>Добавить новость</div>
+		<div class='item search-news'>
+			{{ form_start(form_search_news) }}
+			{{ form_widget(form_search_news) }}
+			{{ form_end(form_search_news) }}
+		</div>
+	</div>
+	{% if news is not empty %}
+		{% if use_search|trim is not empty %}
+			<div class='search-query-wrap'><span>{{ _self.declension(news|length , ['Найдена','Найдены','Найдено']) }} {{ news|length }} {{ _self.declension(news|length , ['новость','новости','новостей']) }} по запросу "{{ use_search|trim }}".</span></div>
+		{% endif %}
+		{% macro declension(number, forms, isNumber) %}
+			{% set cases = [2, 0, 1, 1, 1, 2] %}
+			{%  if isNumber %}{{ number }}&nbsp;{% endif %}{{ forms[ ( number%100>4 and number%100<20)? 2 : cases[min(number%10, 5)] ] }}
+		{% endmacro %}
+		{% for n in news %}
+			<div class='news'>
+				<div class='category'>
+					{% if n.category == 'policy' %}
+						<span>Политика</span>
+					{% elseif n.category == 'technologies' %}
+						<span>Технологии</span>
+					{% elseif n.category == 'weather' %}
+						<span>Погода</span>
+					{% elseif n.category == 'economy' %}
+						<span>Экономика</span>
+					{% elseif n.category == 'incidents' %}
+						<span>Происшествия</span>
+					{% endif %}
+				</div>
+				<div class='img'>
+					{% if n.image|trim is not empty %}
+						<img src='{{ asset('image/' ~ n.image) }}' title='Картинка'>
+					{% else %}
+						<span>Картинки нет</span>
+					{% endif %}
+				</div>
+				<div class='textField title'>
+					<span>{{ n.title }}</span>
+				</div>
+				<div class='textField desc'>
+					<span>{{ n.desc|nl2br }}</span>
+				</div>
+				<div class='menu-for-news-wrap'>
+					<div class='menu-for-news'>
+						<a href='update/{{ n.id }}'>Редактировать</a>
+						<a href='remove/{{ n.id }}'>Удалить</a>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	{% else %}
+		{% if use_search|trim is not empty %}
+			<div class='search-query-wrap'><span>По запросу "{{ use_search|trim }}" ничего не найдено.</span></div>
+		{% else %}
+			<div class='search-query-wrap'><span>Новостей нет.</span></div>
+		{% endif %}
+	{% endif %}
+</div>
+{% if use_search|trim is empty and news is not empty %}
+	<div class='list-grid-wrap'>
+		{% for i in 1..list_data %}
+			<a {% if page == i %}class='active'{% endif %} href='?page={{ i }}'>{{ i }}</a>
+		{% endfor %}
+	</div>
+{% endif %}
+<div id='form-add-news' class='form-wrap'>
+	{{ form_start(form_add_news) }}
+	<span onclick='formAddNews()' class='close'>Закрыть</span>
+	{{ form_widget(form_add_news) }}
+	{{ form_end(form_add_news) }}
+</div>
+<script>
+function formAddNews(){
+	document.getElementById('form-add-news').style.display = (document.getElementById('form-add-news').style.display == 'block') ? '' : 'block';
+}
+</script>
